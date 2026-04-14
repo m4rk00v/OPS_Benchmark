@@ -1,0 +1,4 @@
+[submodule "OPS"]
+	path = OPS
+	url = git@github.com:OP-DSL/OPS.git
+	branch = feature/gpu_block_size
