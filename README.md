@@ -80,6 +80,47 @@ Example: `RUN_MODES="0,1"` runs baseline first, then autotuning, and computes th
 
 All CSV files are generated at runtime by `ops_util.cpp` inside the CUDA application. When auto_grid.sh runs an app, it sets the environment variable `OPS_LOGS_DIR` to the target directory, and the C++ logging code writes the files there.
 
+A real example is included in this repository at `OPS_LOGS/cloverleaf_cuda_100^3_cfg1_20260209_161648/`. The directory naming convention is `{app}_cuda_{label}_{DATE_STAMP}`:
+
+```
+OPS_LOGS/cloverleaf_cuda_100^3_cfg1_20260209_161648/
+├── config.txt                                  <- run metadata + wall times + speedups
+├── autotune_on/                                <- Mode 1 (dynamic autotuning) results
+│   ├── ops_blocksize_tuning_logmod.csv         <- all (kernel, block) measurements (2.6 MB)
+│   ├── ops_blocksize_best_logmod.csv           <- best block per kernel (28 KB)
+│   ├── ops_arrays_metadata.csv                 <- array metadata for all kernels
+│   └── ops_arrays_metadata_best.csv            <- array metadata for best kernels
+└── autotune_off/                               <- Mode 0 (default blocks) results
+    ├── ops_blocksize_tuning_logmod.csv         <- single measurement per kernel (46 MB)
+    ├── ops_blocksize_best_logmod.csv           <- default block per kernel (17 KB)
+    ├── ops_arrays_metadata.csv
+    └── ops_arrays_metadata_best.csv
+```
+
+The `config.txt` contains the run summary:
+```
+APP_NAME=cloverleaf
+GRID_X=100
+GRID_Y=100
+GRID_Z=100
+TOTAL_CELLS=1000000
+LABEL=100^3_cfg1
+ITERATIONS=800
+DATE_STAMP=20260209_161648
+
+WALL_TIME_NO_AUTOTUNE=8.474863       <- Mode 0 wall time (seconds)
+WALL_TIME_AUTOTUNE=8.489636           <- Mode 1 wall time (seconds)
+SPEEDUP_AUTOTUNE=.9982                <- ratio: mode0 / mode1
+
+TOTAL_ARRAYS=544
+ARRAYS_READ=205
+ARRAYS_WRITE=99
+ARRAYS_RW=237
+LARGEST_ARRAY=yvel0 (110x110x110, 10.15 MB)
+SMALLEST_ARRAY=xx (110x1x1, 440 bytes)
+TOTAL_UNIQUE_ARRAYS_MB=299.98
+```
+
 #### Dataset
 
 ##### Tuning CSV (`ops_blocksize_tuning_logmod.csv`)
