@@ -283,13 +283,15 @@ $HOME/
 │           └── ops_blocksize_best_logmod.csv
 │
 └── OPS_DEEP-LEARNING/                      # ML models (only for modes 4, 5, 6)
-    └── notes/
-        └── models/
-            ├── xgboost_bx_*.json           # Mode 4/5: multi-output models
-            ├── xgboost_by_*.json
-            ├── xgboost_bz_*.json
-            └── model_*.json                # Mode 6: single-output model
+    └── models/
+        ├── xgboost_bx.json                # Mode 4/5: multi-output models
+        ├── xgboost_by.json
+        ├── xgboost_bz.json
+        ├── xgboost_single.json            # Mode 6: single-output model
+        └── block_classes.txt              # Mode 6: class mapping
 ```
+
+A template version of `auto_grid.sh` is provided in this repository at [`OPS_AUTO/auto_grid.sh`](OPS_AUTO/auto_grid.sh). It uses generic paths (`${HOME}/...`) and is ready to be copied to `$HOME/OPS_AUTO/` and configured. All paths and parameters that need to be adjusted are clearly marked in the script.
 
 ### Step-by-Step Execution Guide
 
