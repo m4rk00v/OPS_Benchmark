@@ -200,21 +200,50 @@ For a single-rank 3D problem of size N^3:
 
 ## Building
 
-auto_grid.sh handles compilation automatically. When launched, it:
+auto_grid.sh handles compilation automatically every time it runs. The build process has two stages:
 
-1. Compiles the OPS core library:
+### Stage 1: OPS Core Library
+
+The OPS core C library is always compiled first, since all apps depend on it. This is where the autotuning logic lives (`ops_util.cpp`):
+
 ```bash
 cd $HOME/OPS/ops/c && make clean && make -j NV_ARCH={Ampere|Volta}
 ```
 
-2. Compiles each app listed in `RUN_APPS`:
+The core library path is defined by:
 ```bash
-cd $HOME/OPS/apps/c/{app_dir} && make clean && make {app}_cuda NV_ARCH={Ampere|Volta}
+OPS_ROOT="$HOME/OPS"
+OPS_CORE="${OPS_ROOT}/ops/c"
+```
+
+### Stage 2: Application Binaries
+
+Only the apps listed in `RUN_APPS` are compiled. The script checks each app name and runs `make` in its corresponding directory. The mapping between app names and directories is:
+
+| `RUN_APPS` name | Directory | Make target | Binary produced |
+|-----------------|-----------|-------------|-----------------|
+| `cloverleaf` | `$HOME/OPS/apps/c/CloverLeaf_3D/` | `cloverleaf_cuda` | `cloverleaf_cuda` |
+| `cloverleaf2d` | `$HOME/OPS/apps/c/CloverLeaf/` | `cloverleaf_cuda` | `cloverleaf2d_cuda` (symlink) |
+| `tti` | `$HOME/OPS/apps/c/tti/` | `tti_cuda` | `tti_cuda` |
+| `maxwell` | `$HOME/OPS/apps/c/maxwell_fdtd/` | `maxwell_cuda` | `maxwell_cuda` |
+| `lattboltz2d` | `$HOME/OPS/apps/c/ops-lbm/step5/` | `lattboltz2d_cuda` | `lattboltz2d_cuda` |
+| `laplace2d` | `$HOME/OPS/apps/c/laplace2d_tutorial/step7/` | `laplace2d_cuda` | `laplace2d_cuda` |
+| `opensbli` | `$HOME/OPS/apps/c/TGsym_DP/` | `opensbli_cuda` | `opensbli_cuda` |
+| `tgvstorenone` | `$HOME/OPS/apps/c/TGV_StoreNone/` | `opensbli_cuda` | `tgvstorenone_cuda` (symlink) |
+| `tgvstoreall` | `$HOME/OPS/apps/c/TGV_StoreAll/` | `opensbli_cuda` | `tgvstoreall_cuda` (symlink) |
+
+Each app is compiled with:
+```bash
+cd {app_directory} && make clean && make {make_target} NV_ARCH={Ampere|Volta}
 ```
 
 `NV_ARCH` is derived from `GPU_TYPE` in the script (`a100` -> `Ampere`, `v100` -> `Volta`).
 
-Prerequisites: CUDA toolkit, C++ compiler, and OPS dependencies (see https://github.com/OP-DSL/OPS).
+**Note:** Some apps (`cloverleaf2d`, `tgvstorenone`, `tgvstoreall`) produce a binary with a different name than what auto_grid.sh expects, so the script creates a symlink (e.g., `ln -sf opensbli_cuda tgvstorenone_cuda`).
+
+### Prerequisites
+
+CUDA toolkit, C++ compiler, and OPS dependencies must be installed before running. See https://github.com/OP-DSL/OPS for full build instructions.
 
 
 
